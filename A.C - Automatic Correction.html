@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Correction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #306064;
+            --color-secondary: #4B908E;
+            --color-accent: #0a1aff;
+            --color-light: #BBD7D5;
+            --color-bg: #E5E5E9;
+            --color-white: #ffffff;
+            --color-dark: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-color: var(--color-bg);
+            color: var(--color-dark);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--color-white);
+            padding: 15px 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            padding: 10px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled .logo img {
+            height: 50px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+            position: relative;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--color-primary);
+            font-weight: 600;
+            transition: color 0.3s;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--color-accent);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        nav ul li a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--color-light) 0%, var(--color-secondary) 100%);
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.1)" d="M0,0 L100,0 L100,100 L0,100 Z" /></svg>');
+            background-size: cover;
+            opacity: 0.1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--color-primary);
+            position: relative;
+            animation: fadeInDown 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            color: var(--color-primary);
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.3s forwards;
+            opacity: 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--color-accent);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(10, 26, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease 0.6s forwards;
+            opacity: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background-color: var(--color-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(10, 26, 255, 0.4);
+        }
+
+        .cta-button:active {
+            transform: translateY(1px);
+        }
+
+        .cta-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .cta-button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background-color: var(--color-white);
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--color-accent);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--color-white);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-image {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .feature-image {
+            transform: scale(1.05);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(75, 144, 142, 0.3);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--color-primary);
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: var(--color-secondary);
+            line-height: 1.6;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--color-light) 0%, var(--color-secondary) 100%);
+            position: relative;
+        }
+
+        .testimonials::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.1)" d="M0,0 L100,0 L100,100 L0,100 Z" /></svg>');
+            background-size: cover;
+            opacity: 0.1;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background-color: var(--color-white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .testimonial-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 5rem;
+            color: rgba(75, 144, 142, 0.1);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .testimonial-image {
+            width: 100%;
+            height: 250px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .testimonial-card:hover .testimonial-image {
+            transform: scale(1.03);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+            color: var(--color-secondary);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .author-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 3px solid var(--color-light);
+        }
+
+        .author-info h4 {
+            color: var(--color-primary);
+            margin-bottom: 5px;
+        }
+
+        .author-info p {
+            color: var(--color-secondary);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 100px 0;
+            background-color: var(--color-white);
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 50px;
+        }
+
+        .contact-info h3 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            position: relative;
+        }
+
+        .contact-info h3::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background: var(--color-accent);
+            margin: 10px 0 20px;
+            border-radius: 2px;
+        }
+
+        .contact-image {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .contact-image:hover {
+            transform: scale(1.02);
+        }
+
+        .contact-details {
+            margin-bottom: 30px;
+        }
+
+        .contact-details p {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            color: var(--color-secondary);
+        }
+
+        .contact-details i {
+            margin-right: 10px;
+            color: var(--color-accent);
+            font-size: 1.2rem;
+            min-width: 25px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--color-light);
+            border-radius: 5px;
+            background-color: var(--color-bg);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(10, 26, 255, 0.1);
+            background-color: var(--color-white);
+        }
+
+        .contact-form textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        /* App Showcase Section */
+        .app-showcase {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--color-light) 0%, var(--color-secondary) 100%);
+            text-align: center;
+        }
+
+        .prototype-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .prototype-image {
+            width: 300px;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .prototype-image:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        .app-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--color-accent);
+            font-weight: bold;
+            text-decoration: none;
+            border-bottom: 2px solid var(--color-accent);
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .app-link:hover {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        /* Team Section */
+        .team {
+            padding: 100px 0;
+            background-color: var(--color-white);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .team-card {
+            background-color: var(--color-white);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .team-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .team-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            border: 5px solid var(--color-light);
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover .team-image {
+            border-color: var(--color-accent);
+            transform: scale(1.05);
+        }
+
+        .team-card h3 {
+            margin-bottom: 10px;
+            color: var(--color-primary);
+            font-size: 1.5rem;
+        }
+
+        .team-card p {
+            color: var(--color-secondary);
+            line-height: 1.6;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: var(--color-light);
+            border-radius: 50%;
+            color: var(--color-primary);
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background-color: var(--color-accent);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            padding: 60px 0 20px;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-logo img {
+            height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: white;
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.9;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: white;
+            color: var(--color-primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--color-accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--color-primary);
+            transform: translateY(-3px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            nav ul {
+                margin-top: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            nav ul li {
+                margin: 5px 15px;
+            }
+
+            .hero {
+                padding: 100px 0 60px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .cta-button {
+                padding: 12px 25px;
+                font-size: 0.9rem;
+            }
+            
+            .feature-card, .testimonial-card, .team-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-container">
+            <div class="logo"><img src="Black White Grey Round Monogram Typography Logo.png" alt="Automatic Correction Logo"></div>
+            <nav>
+                <ul>
+                    <li><a href="#features">Soluções</a></li>
+                    <li><a href="#testimonials">Clientes</a></li>
+                    <li><a href="#team">Equipe</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Corrija em Segundos com o Automatic Correction!</h1>
+            <p>Corrigir gabaritos nunca foi tão rápido. Economize tempo e aumente a produtividade com nossa solução inteligente.</p>
+            <a href="#showcase" class="cta-button">Conhecer o APP</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Soluções que Nosso APP Oferece</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <img src="Design sem nome (1).png" alt="Processamento rápido de gabaritos" class="feature-image">
+                    <div class="feature-icon">1</div>
+                    <h3>Processamento Rápido</h3>
+                    <p>O app processa centenas de gabaritos em minutos, eliminando horas de trabalho manual e reduzindo erros humanos.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Design sem nome (2).png" alt="Reconhecimento inteligente" class="feature-image">
+                    <div class="feature-icon">2</div>
+                    <h3>Reconhecimento Inteligente</h3>
+                    <p>Identifica marcas, preenchimentos e até respostas rasuradas com ajuste de sensibilidade para máxima precisão.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Design sem nome (3).png" alt="Análise de desempenho" class="feature-image">
+                    <div class="feature-icon">3</div>
+                    <h3>Análise de Desempenho</h3>
+                    <p>Gera relatórios completos com gráficos de desempenho, médias e identificação de questões críticas automaticamente.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">O que Nossos Clientes Dizem</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <img src="tatianne.jpg" alt="Tatiane Tavares" class="testimonial-image">
+                    <p class="testimonial-text">"É muito vago para definir se gostei ou não, pois não estou testando o aplicativo, mas é bem interessante o aplicativo. A ideia é excelente para otimizar nosso tempo."</p>
+                    <div class="testimonial-author">
+                        <img src="tatianne 2.png" alt="Tatiane Tavares" class="author-avatar">
+                        <div class="author-info">
+                            <h4>Tatiane Tavares</h4>
+                            <p>Coordenadora pedagógica</p>
+                            <p>Colégio São Judas Tadeu</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <img src="marlange 2.jpg" alt="Marlange Bemvinda" class="testimonial-image">
+                    <p class="testimonial-text">"Eu gostei bastante do aplicativo de vocês, porque os professores perdem muito tempo corrigindo e o aplicativo otimiza o tempo dos professores. Não tenho nada a reclamar. Recomendo!"</p>
+                    <div class="testimonial-author">
+                        <img src="marlange.png" alt="Marlange Bemvinda" class="author-avatar">
+                        <div class="author-info">
+                            <h4>Marlange Bemvinda dos Santos Brito</h4>
+                            <p>Técnica em Ações Educacionais e Professora de Lingua Portuguesa</p>
+                            <p>IFPI</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Showcase Section -->
+    <section class="app-showcase" id="showcase">
+        <div class="container">
+            <h2 class="section-title">Conheça Nosso APP</h2>
+            <p>Transforme a maneira de corrigir provas! Use o Automatic Correction e ganhe tempo para focar no que realmente importa.</p>
+            
+            <div class="prototype-container">
+                <img src="Design sem nome.jpg" alt="Protótipo do aplicativo" class="prototype-image">
+                <img src="Design sem nome 7.png" alt="Interface do aplicativo" class="prototype-image">
+            </div>
+            
+            <a href="https://www.canva.com/design/DAGflcSeyWA/ZH3zcfAtLRl1aK3GMErCfw/view?mode=prototype" class="app-link" target="_blank">Ver Mais dos Protótipos</a>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team" id="team">
+        <div class="container">
+            <h2 class="section-title">Conheça a Nossa Equipe</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <img src="Thaylla.jpg" alt="Thaylla Shophia" class="team-image">
+                    <h3>Thaylla Shophia</h3>
+                    <p>Design, Vendas, Atendimento ao Cliente e Marketing</p>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/_thayllasophiapdias?igsh=a3JmMXVqa2cycHU5"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <img src="Brenda.jpg" alt="Brenda Vitória" class="team-image">
+                    <h3>Brenda Vitória</h3>
+                    <p>CEO, Design e Desenvolvimento</p>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/bvvitoriia?igsh=MjFvMmcxYjdwcTlx"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <img src="Nayanne.jpg" alt="Nayanne Cruz" class="team-image">
+                    <h3>Nayanne Cruz</h3>
+                    <p>Design, Vendas e Atendimento ao Cliente</p>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/anne._.xss?igsh=MWc4eWdwMjAzZHY2Zw=="><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">Está interessado(a) em saber mais? Fale Conosco.</h2>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <img src="acc.jpg" alt="Equipe Automatic Correction" class="contact-image">
+                    <h3>Nossos contatos</h3>
+                    <div class="contact-details">
+                        <p><i class="fas fa-phone"></i> +55 (89) 98115-9863</p>
+                        <p><i class="fas fa-envelope"></i> tasklyzer24@gmail.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Picos, PI - Brasil</p>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form action="https://formsubmit.co/tasklyzer24@gmail.com" method="POST" id="contactForm">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_autoresponse" value="Recebemos sua mensagem! Em breve entraremos em contato."> <!-- Resposta automática -->
+    
+    <input type="text" name="name" placeholder="Seu Nome" required>
+    <input type="email" name="email" placeholder="Seu Email" required>
+    <input type="text" name="subject" placeholder="Assunto">
+    <textarea name="message" placeholder="Sua Mensagem" required></textarea>
+    <button type="submit" class="cta-button">Enviar mensagem</button>
+</form>
+
+<script>
+    document.getElementById('contactForm').addEventListener('submit', function() {
+        alert('Mensagem enviada com sucesso!');
+    });
+</script>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="Black White Grey Round Monogram Typography Logo.png" alt="Automatic Correction Logo">
+                </div>
+                <div class="footer-links">
+                    <a href="#features">Soluções</a>
+                    <a href="#testimonials">Clientes</a>
+                    <a href="#team">Equipe</a>
+                    <a href="#contact">Contato</a>
+                    <a href="#">Políticas de Privacidade</a>
+                </div>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/tasklyzer?igsh=d3dudjd4dmlteTRn" target="_blank"><i class="fab fa-instagram"></i></a>
+                </div>
+                <p class="copyright">© 2025 Automatic Correction. Todos os Direitos Reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Header scroll effect
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // Back to top button
+            const backToTopButton = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            });
+
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Intersection Observer for scroll animations
+            const animateOnScroll = function() {
+                const elementsToAnimate = document.querySelectorAll('.feature-card, .testimonial-card, .team-card');
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1
+                });
+
+                elementsToAnimate.forEach(element => {
+                    observer.observe(element);
+                });
+            };
+
+            animateOnScroll();
+
+            // Form submission
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const name = this.querySelector('input[type="text"]').value;
+                    const email = this.querySelector('input[type="email"]').value;
+                    const subject = this.querySelectorAll('input[type="text"]')[1].value;
+                    const message = this.querySelector('textarea').value;
+                    
+                    // Here you would typically send the form data to a server
+                    console.log('Form submitted:', { name, email, subject, message });
+                    
+                    // Show success message
+                    alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+                    
+                    // Reset form
+                    this.reset();
+                });
+            }
+
+            // Ripple effect for buttons
+            const buttons = document.querySelectorAll('.cta-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const x = e.clientX - e.target.getBoundingClientRect().left;
+                    const y = e.clientY - e.target.getBoundingClientRect().top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 1000);
+                });
+            });
+
+            // Image hover zoom effect
+            const images = document.querySelectorAll('.feature-image, .testimonial-image, .team-image, .prototype-image');
+            images.forEach(image => {
+                image.addEventListener('mouseenter', function() {
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                image.addEventListener('mouseleave', function() {
+                    this.style.transition = 'transform 0.3s ease';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
